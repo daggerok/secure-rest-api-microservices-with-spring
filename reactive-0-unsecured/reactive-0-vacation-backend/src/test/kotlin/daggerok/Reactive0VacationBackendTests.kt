@@ -9,30 +9,23 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
+import org.junit.jupiter.api.fail
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
-import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.http.HttpStatus
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.body
-import org.springframework.web.reactive.function.client.bodyToFlux
-import org.springframework.web.reactive.function.client.bodyToMono
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 
 @TestInstance(PER_CLASS)
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(
+    webEnvironment = DEFINED_PORT,
+    properties = [
+        "server.port=7003",
+        "vacation-server.port=\${server.port}",
+    ]
+)
 @Suppress("SpringJavaInjectionPointsAutowiringInspection")
-class Reactive0VacationBackendTests @Autowired constructor(
-    @LocalServerPort port: Int,
-    builder: WebClient.Builder,
-    val vacations: Vacations,
-) {
-
-    val restClient = builder.build()
-    val baseUrl = "http://127.0.0.1:$port"
+class Reactive0VacationBackendTests @Autowired constructor(val restClient: VacationClient, val vacations: Vacations) {
 
     @BeforeEach
     fun setUp() {
@@ -42,13 +35,10 @@ class Reactive0VacationBackendTests @Autowired constructor(
 
     @Test
     fun `should request vacation`() {
+        // given
+        val vacation = vacationWith(username = "daggerok")
         // when
-        val mono = restClient.post()
-            .uri("$baseUrl/vacations")
-            .body(Mono.just(vacationWith(username = "daggerok")))
-            .retrieve()
-            .bodyToMono<Vacation>()
-            .log("request vacation response")
+        val mono = restClient.requestVacation(vacation)
         // then
         StepVerifier.create(mono)
             .consumeNextWith {
@@ -60,24 +50,10 @@ class Reactive0VacationBackendTests @Autowired constructor(
 
     @Test
     fun `should not request vacation with status != CREATED`() {
+        // given
+        val vacation = vacationWith(status = APPROVED)
         // when
-        val mono = restClient.post()
-            .uri("$baseUrl/vacations")
-            .bodyValue(vacationWith(status = APPROVED))
-            .retrieve()
-            // .bodyToMono(Vacation::class.java)
-            // .onErrorResume(WebClientResponseException::class.java) {
-            //     if (it.rawStatusCode < 400) Mono.empty()
-            //     else Mono.error(RuntimeException(it))
-            // }
-            .onStatus(HttpStatus::isError) {
-                it.bodyToMono<Map<String, Any>>()
-                    .handle<Throwable> { value, sink ->
-                        val message = if (value.containsKey("error")) value["error"].toString() else "Unknown error"
-                        sink.error(RuntimeException(message))
-                    }
-            }
-            .bodyToMono<Vacation>()
+        val mono = restClient.requestVacation(vacation)
         // then
         StepVerifier.create(mono)
             .consumeErrorWith {
@@ -96,10 +72,7 @@ class Reactive0VacationBackendTests @Autowired constructor(
             .flatMap { vacations.save(it) }
             .subscribe { logger.info { "created: $it" } }
         // when
-        val flux = restClient.get()
-            .uri("$baseUrl/vacations?username={username}", "ololo")
-            .retrieve()
-            .bodyToFlux<Vacation>()
+        val flux = restClient.searchVacations("ololo")
         // then
         StepVerifier.create(flux)
             .consumeNextWith {
@@ -122,11 +95,9 @@ class Reactive0VacationBackendTests @Autowired constructor(
             .last()
             .subscribe {
                 logger.info { "created: $it" }
+                val id = it.id ?: fail("id is null")
                 // when
-                val mono = restClient.get()
-                    .uri("$baseUrl/vacations/{id}", it.id)
-                    .retrieve()
-                    .bodyToMono<Vacation>()
+                val mono = restClient.getVacation(id)
                 // then
                 StepVerifier.create(mono)
                     .consumeNextWith {
@@ -139,14 +110,14 @@ class Reactive0VacationBackendTests @Autowired constructor(
 
     @Test
     fun `should approve vacation`() {
+        val vacation = vacationWith(username = "daggerok", status = CREATED)
         // given
-        vacations.save(vacationWith(username = "daggerok", status = CREATED))
+        vacations.save(vacation)
             .subscribe {
                 logger.info { "saved: $it" }
+                val id = it.id ?: fail("id may not be null")
                 // when
-                val mono = restClient.put().uri("$baseUrl/vacations/{id}", it.id)
-                    .retrieve()
-                    .bodyToMono<Vacation>()
+                val mono = restClient.approveVacation(id)
                 // then
                 StepVerifier.create(mono)
                     .consumeNextWith {
@@ -159,13 +130,13 @@ class Reactive0VacationBackendTests @Autowired constructor(
     @Test
     fun `should decline vacation`() {
         // given
-        vacations.save(vacationWith(username = "daggerok", status = CREATED))
+        val vacation = vacationWith(username = "daggerok", status = CREATED)
+        vacations.save(vacation)
             .subscribe {
                 logger.info { "saved: $it" }
+                val id = it.id ?: fail("id may not be null")
                 // when
-                val mono = restClient.delete().uri("$baseUrl/vacations/{id}", it.id)
-                    .retrieve()
-                    .bodyToMono<Vacation>()
+                val mono = restClient.declineVacation(id)
                 // then
                 StepVerifier.create(mono)
                     .consumeNextWith {

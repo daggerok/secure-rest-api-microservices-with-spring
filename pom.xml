@@ -15,6 +15,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<modules>
 		<module>reactive-0-unsecured/reactive-0-vacation-backend</module>
+		<module>reactive-0-unsecured/reactive-0-vacation-client</module>
 		<module>servlet-0-unsecured/servlet-0-vacation-backend</module>
 	</modules>
 	<properties>

@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  daggerok.Reactive0VacationClientAutoConfiguration

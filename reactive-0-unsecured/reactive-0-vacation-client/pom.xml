@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <modelVersion>4.0.0</modelVersion>
     <groupId>daggerok</groupId>
-    <artifactId>reactive-0-vacation-backend</artifactId>
+    <artifactId>reactive-0-vacation-client</artifactId>
     <dependencies>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
@@ -30,38 +30,5 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-r2dbc</artifactId>
-        </dependency>
-        <!--  -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.r2dbc</groupId>
-            <artifactId>r2dbc-h2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <!--  -->
-        <dependency>
-            <groupId>daggerok</groupId>
-            <artifactId>reactive-0-vacation-client</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <jmxPort>9003</jmxPort>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
