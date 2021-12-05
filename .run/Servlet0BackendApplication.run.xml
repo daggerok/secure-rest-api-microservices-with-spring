@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Servlet0BackendApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="servlet-0-backend" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="daggerok.Servlet0BackendApplication" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

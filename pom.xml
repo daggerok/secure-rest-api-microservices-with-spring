@@ -13,14 +13,18 @@
 	<groupId>daggerok</groupId>
 	<artifactId>secure-rest-api-microservices-with-spring</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<modules>
+		<module>servlet-0-unsecured/servlet-0-vacation-backend</module>
+	</modules>
 	<properties>
 		<java.version>1.8</java.version>
 		<kotlin.version>1.6.0</kotlin.version>
+		<kotlin-logging-jvm.version>2.0.10</kotlin-logging-jvm.version>
 	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 		<!--  -->
 		<dependency>
@@ -30,6 +34,11 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-stdlib-jdk8</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.github.microutils</groupId>
+			<artifactId>kotlin-logging-jvm</artifactId>
+			<version>${kotlin-logging-jvm.version}</version>
 		</dependency>
 		<!--  -->
 		<dependency>
