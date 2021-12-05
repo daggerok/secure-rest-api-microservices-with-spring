@@ -56,9 +56,9 @@ class Servlet0VacationBackendTests @Autowired constructor(
     @Test
     fun `should not request vacation with status != CREATED`() {
         // given
-        val request = vacationWith(username = "daggerok", status = APPROVED)
+        val request = vacationWith(status = APPROVED)
         // when
-        val responseEntity = restClient.postForEntity<Map<String, Any>>("$baseUrl/vacations", request)
+        val responseEntity = restClient.postForEntity<Map<String, String>>("$baseUrl/vacations", request)
         logger.info { responseEntity }
         // then
         assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
@@ -66,7 +66,7 @@ class Servlet0VacationBackendTests @Autowired constructor(
         val error = responseEntity.body
         assertThat(error).isNotNull
         assertThat(error?.containsKey("error")).isTrue
-        assertThat(error?.get("error").toString()).isEqualTo("Request error: not allowed status")
+        assertThat(error?.get("error")).isEqualTo("Request error: not allowed status")
     }
 
     @Test
@@ -128,7 +128,7 @@ class Servlet0VacationBackendTests @Autowired constructor(
         val responseEntity = restClient.exchange<Vacation>("$baseUrl/vacations/{id}", PUT, null, id)
         logger.info { responseEntity }
         // then
-        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.ACCEPTED)
         // and
         val body = responseEntity.body
         assertThat(body).isNotNull
@@ -152,7 +152,7 @@ class Servlet0VacationBackendTests @Autowired constructor(
         val responseEntity = restClient.exchange<Vacation>("$baseUrl/vacations/{id}", DELETE, null, id)
         logger.info { responseEntity }
         // then
-        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.ACCEPTED)
         // and
         val body = responseEntity.body
         assertThat(body).isNotNull

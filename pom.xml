@@ -14,6 +14,7 @@
 	<artifactId>secure-rest-api-microservices-with-spring</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<modules>
+		<module>reactive-0-unsecured/reactive-0-vacation-backend</module>
 		<module>servlet-0-unsecured/servlet-0-vacation-backend</module>
 	</modules>
 	<properties>
@@ -56,6 +57,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
